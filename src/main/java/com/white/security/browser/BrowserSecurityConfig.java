@@ -98,7 +98,9 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers(SecurityConstants.DEFAULT_UNAUTHENTICATION_URL,
                             SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE,
                             securityProperties.getBrowser().getLoginPage(),
-                            SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX + "/*").permitAll()
+                            SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX + "/*",
+                            securityProperties.getBrowser().getSignUpUrl(),
+                            "/user/register").permitAll()
                     .anyRequest()
                     .authenticated() // 任何请求,登录后可以访问
                     .and()
