@@ -127,6 +127,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
                             SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX + "/*",
                             securityProperties.getBrowser().getSignUpUrl(),
                             securityProperties.getBrowser().getSession().getSessionInvalidUrl(),
+                            securityProperties.getBrowser().getSignOutUrl(),
                             "/user/register").permitAll()
                     .anyRequest()
                     .authenticated() // 任何请求,登录后可以访问
