@@ -1,5 +1,6 @@
 package com.white.security.browser;
 
+import com.white.security.browser.session.WhiteExpiredSessionStrategy;
 import com.white.security.core.authentication.FormAuthenticationConfig;
 import com.white.security.core.authentication.mobile.SmsCodeAuthenticationSecurityConfig;
 import com.white.security.core.properties.SecurityConstants;
@@ -18,8 +19,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.session.InvalidSessionStrategy;
+import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.social.security.SpringSocialConfigurer;
 
 import javax.annotation.Resource;
@@ -63,6 +67,15 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private SpringSocialConfigurer whiteSocialSecurityConfig;
 
+    @Autowired
+    private InvalidSessionStrategy invalidSessionStrategy;
+
+    @Autowired
+    private SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
+
+    @Autowired
+    private LogoutSuccessHandler logoutSuccessHandler;
+
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -94,12 +107,26 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
                     .tokenValiditySeconds(securityProperties.getBrowser().getRememberMeSeconds())
                     .userDetailsService(userDetailsService)
                     .and()
+                .sessionManagement()
+                    .invalidSessionStrategy(invalidSessionStrategy)
+                    .maximumSessions(securityProperties.getBrowser().getSession().getMaximumSessions())
+                    .maxSessionsPreventsLogin(securityProperties.getBrowser().getSession().isMaxSessionsPreventsLogin())
+                    .expiredSessionStrategy(sessionInformationExpiredStrategy)
+                    .and()
+                    .and()
+                .logout()
+                    .logoutUrl("/signOut")
+//                    .logoutSuccessUrl("white-logout.html")
+                    .logoutSuccessHandler(logoutSuccessHandler)
+                    .deleteCookies("JSESSIONID")
+                    .and()
                 .authorizeRequests() // 定义哪些URL需要被保护、哪些不需要被保护
                     .antMatchers(SecurityConstants.DEFAULT_UNAUTHENTICATION_URL,
                             SecurityConstants.DEFAULT_LOGIN_PROCESSING_URL_MOBILE,
-                            securityProperties.getBrowser().getLoginPage(),
+                            securityProperties.getBrowser().getSignInPage(),
                             SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX + "/*",
                             securityProperties.getBrowser().getSignUpUrl(),
+                            securityProperties.getBrowser().getSession().getSessionInvalidUrl(),
                             "/user/register").permitAll()
                     .anyRequest()
                     .authenticated() // 任何请求,登录后可以访问
