@@ -43,6 +43,6 @@ public class BrowserSecurityBeanConfig {
     @Bean
     @ConditionalOnMissingBean(LogoutSuccessHandler.class)
     public LogoutSuccessHandler logoutSuccessHandler() {
-        return new WhiteLogoutSuccessHandler(securityProperties);
+        return new WhiteLogoutSuccessHandler(securityProperties.getBrowser().getSignOutUrl());
     }
 }

@@ -77,11 +77,6 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
     private LogoutSuccessHandler logoutSuccessHandler;
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
@@ -127,7 +122,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter {
                             SecurityConstants.DEFAULT_VALIDATE_CODE_URL_PREFIX + "/*",
                             securityProperties.getBrowser().getSignUpUrl(),
                             securityProperties.getBrowser().getSession().getSessionInvalidUrl(),
-                            securityProperties.getBrowser().getSignOutUrl(),
+                            //securityProperties.getBrowser().getSignOutUrl(), // 当配置了white.security.browser.signOutUrl属性，需要配置此项
                             "/user/register").permitAll()
                     .anyRequest()
                     .authenticated() // 任何请求,登录后可以访问

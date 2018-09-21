@@ -28,17 +28,16 @@ public class WhiteLogoutSuccessHandler implements LogoutSuccessHandler {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public WhiteLogoutSuccessHandler(SecurityProperties securityProperties) {
-        this.securityProperties = securityProperties;
-    }
+    private String signOutUrl;
 
-    private SecurityProperties securityProperties;
+    public WhiteLogoutSuccessHandler(String signOutUrl) {
+        this.signOutUrl = signOutUrl;
+    }
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         logger.info("退出成功!");
-
-        String signOutUrl = securityProperties.getBrowser().getSignOutUrl();
+        
         if (StringUtils.isBlank(signOutUrl)) {
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write(objectMapper.writeValueAsString(new SimpleResponse("退出成功")));
